@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.Models;
-using RaceDay.API.DTOs; // Make sure your DTOs are in this namespace
+using RaceDay.API.DTOs;
+using System.Security.Claims;
 
 namespace RaceDay.API.Controllers
 {
@@ -20,16 +22,13 @@ namespace RaceDay.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
         {
-            // 1. Check if email already exists
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
                 return BadRequest(new { message = "Email already exists." });
             }
 
-            // 2. Hash the password
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            // 3. Create the User
             var user = new User
             {
                 FirstName = request.FirstName,
@@ -41,15 +40,14 @@ namespace RaceDay.API.Controllers
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync(); // This generates the UserID
+            await _context.SaveChangesAsync();
 
-            // 4. Create the specific profile based on the role
             if (request.Role == "Organiser")
             {
                 var organiser = new Organiser
                 {
                     UserID = user.UserID,
-                    OrganisationName = request.FirstName + " " + request.LastName, // Default value
+                    OrganisationName = request.FirstName + " " + request.LastName,
                     ContactPhone = "N/A",
                     ContactEmail = request.Email
                 };
@@ -60,7 +58,7 @@ namespace RaceDay.API.Controllers
                 var participant = new Participant
                 {
                     UserID = user.UserID,
-                    DateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-20)), // Default value
+                    DateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow.AddYears(-20)),
                     Gender = "N/A",
                     EmergencyContact = "N/A",
                     MedicalConditions = "None"
@@ -69,33 +67,32 @@ namespace RaceDay.API.Controllers
             }
 
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "User registered successfully!" });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            // 1. Find user by email
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
                 return Unauthorized(new { message = "Invalid email or password." });
             }
 
-            // 2. Verify password
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
-
-            if (!isPasswordValid)
+            // Create the claims for the cookie
+            var claims = new List<Claim>
             {
-                return Unauthorized(new { message = "Invalid email or password." });
-            }
+                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                new Claim(ClaimTypes.Name, user.FirstName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
-            // 3. Set session (Simple version for Part 2)
-            HttpContext.Session.SetInt32("UserID", user.UserID);
-            HttpContext.Session.SetString("Role", user.Role);
-            HttpContext.Session.SetString("Name", user.FirstName);
+            var claimsIdentity = new ClaimsIdentity(claims, "MyCookieAuth");
+
+            // Sign the user in (creates the encrypted cookie)
+            await HttpContext.SignInAsync("MyCookieAuth", new ClaimsPrincipal(claimsIdentity));
 
             return Ok(new
             {
@@ -104,6 +101,13 @@ namespace RaceDay.API.Controllers
                 firstName = user.FirstName,
                 role = user.Role
             });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+            return Ok(new { message = "Logged out successfully." });
         }
     }
 }
