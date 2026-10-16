@@ -19,7 +19,7 @@ namespace RaceDay.API.Controllers
 
         // GET: api/events
         [HttpGet]
-        [Authorize]
+        // [Authorize] <-- Temporarily commented out
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
             return await _context.Events
@@ -29,7 +29,7 @@ namespace RaceDay.API.Controllers
 
         // GET: api/events/5
         [HttpGet("{id}")]
-        [Authorize]
+        // [Authorize] <-- Temporarily commented out
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var raceEvent = await _context.Events
@@ -46,7 +46,7 @@ namespace RaceDay.API.Controllers
 
         // POST: api/events
         [HttpPost]
-        [Authorize(Roles = "Organiser")]
+        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
         public async Task<ActionResult<Event>> CreateEvent(Event raceEvent)
         {
             _context.Events.Add(raceEvent);
@@ -57,7 +57,7 @@ namespace RaceDay.API.Controllers
 
         // PUT: api/events/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Organiser")]
+        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
         public async Task<IActionResult> UpdateEvent(int id, Event raceEvent)
         {
             if (id != raceEvent.EventID)
@@ -88,7 +88,7 @@ namespace RaceDay.API.Controllers
 
         // DELETE: api/events/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Organiser")]
+        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
         public async Task<IActionResult> DeleteEvent(int id)
         {
             var raceEvent = await _context.Events.FindAsync(id);
