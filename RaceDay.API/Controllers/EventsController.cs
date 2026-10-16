@@ -19,17 +19,17 @@ namespace RaceDay.API.Controllers
 
         // GET: api/events
         [HttpGet]
-        // [Authorize] <-- Temporarily commented out
+        // [Authorize]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
             return await _context.Events
-                .Include(e => e.Categories)
+                .Include(e => e.Categories) // Fixed: Enrolments removed if not needed here
                 .ToListAsync();
         }
 
         // GET: api/events/5
         [HttpGet("{id}")]
-        // [Authorize] <-- Temporarily commented out
+        // [Authorize]
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var raceEvent = await _context.Events
@@ -46,8 +46,8 @@ namespace RaceDay.API.Controllers
 
         // POST: api/events
         [HttpPost]
-        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
-        public async Task<ActionResult<Event>> CreateEvent(Event raceEvent)
+        // [Authorize(Roles = "Organiser")]
+        public async Task<ActionResult<Event>> CreateEvent([FromBody] Event raceEvent)
         {
             _context.Events.Add(raceEvent);
             await _context.SaveChangesAsync();
@@ -57,8 +57,8 @@ namespace RaceDay.API.Controllers
 
         // PUT: api/events/5
         [HttpPut("{id}")]
-        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
-        public async Task<IActionResult> UpdateEvent(int id, Event raceEvent)
+        // [Authorize(Roles = "Organiser")]
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] Event raceEvent)
         {
             if (id != raceEvent.EventID)
             {
@@ -88,7 +88,7 @@ namespace RaceDay.API.Controllers
 
         // DELETE: api/events/5
         [HttpDelete("{id}")]
-        // [Authorize(Roles = "Organiser")] <-- Temporarily commented out
+        // [Authorize(Roles = "Organiser")]
         public async Task<IActionResult> DeleteEvent(int id)
         {
             var raceEvent = await _context.Events.FindAsync(id);

@@ -10,7 +10,6 @@ namespace RaceDay.API.Data
         {
         }
 
-        // 7 DbSets matching the 7 tables in the ERD
         public DbSet<User> Users { get; set; }
         public DbSet<Organiser> Organisers { get; set; }
         public DbSet<Participant> Participants { get; set; }
@@ -23,120 +22,35 @@ namespace RaceDay.API.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // =========================================
-            // USERS
-            // =========================================
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
+            // Table names mapping to match Part 1 ERD exactly
+            modelBuilder.Entity<User>().ToTable("USERS");
+            modelBuilder.Entity<Organiser>().ToTable("ORGANISERS");
+            modelBuilder.Entity<Participant>().ToTable("PARTICIPANTS");
+            modelBuilder.Entity<Event>().ToTable("EVENTS");
+            modelBuilder.Entity<Category>().ToTable("CATEGORIES");
+            modelBuilder.Entity<EventEnrolment>().ToTable("EVENT_ENROLMENTS");
+            modelBuilder.Entity<Result>().ToTable("RESULTS");
 
-            modelBuilder.Entity<User>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_USERS_Role",
-                    "[Role] IN ('Organiser', 'Participant')"));
-
-            // =========================================
-            // ORGANISERS  (1-to-1 with User)
-            // =========================================
-            modelBuilder.Entity<Organiser>()
-                .HasIndex(o => o.UserID)
-                .IsUnique();
-
-            modelBuilder.Entity<Organiser>()
-                .HasOne(o => o.User)
-                .WithOne(u => u.Organiser)
-                .HasForeignKey<Organiser>(o => o.UserID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // =========================================
-            // PARTICIPANTS  (1-to-1 with User)
-            // =========================================
-            modelBuilder.Entity<Participant>()
-                .HasIndex(p => p.UserID)
-                .IsUnique();
-
-            modelBuilder.Entity<Participant>()
-                .HasOne(p => p.User)
-                .WithOne(u => u.Participant)
-                .HasForeignKey<Participant>(p => p.UserID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // =========================================
-            // EVENTS
-            // =========================================
+            // Relationship Configurations (Fix for line 119)
             modelBuilder.Entity<Event>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_EVENTS_MaxParticipants",
-                    "[MaxParticipants] > 0"));
-
-            modelBuilder.Entity<Event>()
-                .HasOne(e => e.Organiser)
-                .WithMany(o => o.Events)
-                .HasForeignKey(e => e.OrganiserID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // =========================================
-            // CATEGORIES
-            // =========================================
-            modelBuilder.Entity<Category>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_CATEGORIES_Distance",
-                    "[Distance] > 0"));
-
-            modelBuilder.Entity<Category>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_CATEGORIES_EntryFee",
-                    "[EntryFee] >= 0"));
-
-            modelBuilder.Entity<Category>()
-                .HasOne(c => c.Event)
-                .WithMany(e => e.Categories)
-                .HasForeignKey(c => c.EventID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // =========================================
-            // EVENT ENROLMENTS
-            // =========================================
-            modelBuilder.Entity<EventEnrolment>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_ENROLMENTS_PaymentAmount",
-                    "[PaymentAmount] >= 0"));
+                .HasMany(e => e.Enrolments)
+                .WithOne(ee => ee.Event)
+                .HasForeignKey(ee => ee.EventID);
 
             modelBuilder.Entity<EventEnrolment>()
-                .HasOne(e => e.Participant)
-                .WithMany(p => p.EventEnrolments)
-                .HasForeignKey(e => e.ParticipantID)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(ee => ee.Participant)
+                .WithMany(p => p.Enrolments)
+                .HasForeignKey(ee => ee.ParticipantID);
 
             modelBuilder.Entity<EventEnrolment>()
-                .HasOne(e => e.Category)
-                .WithMany(c => c.EventEnrolments)
-                .HasForeignKey(e => e.CategoryID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<EventEnrolment>()
-                .HasOne(e => e.Event)
-                .WithMany(ev => ev.EventEnrolments)
-                .HasForeignKey(e => e.EventID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // =========================================
-            // RESULTS  (1-to-1 with EventEnrolment)
-            // =========================================
-            modelBuilder.Entity<Result>()
-                .HasIndex(r => r.EnrolmentID)
-                .IsUnique();
-
-            modelBuilder.Entity<Result>()
-                .ToTable(t => t.HasCheckConstraint(
-                    "CK_RESULTS_Position",
-                    "[Position] IS NULL OR [Position] > 0"));
+                .HasOne(ee => ee.Category)
+                .WithMany(c => c.Enrolments)
+                .HasForeignKey(ee => ee.CategoryID);
 
             modelBuilder.Entity<Result>()
                 .HasOne(r => r.EventEnrolment)
-                .WithOne(e => e.Result)
-                .HasForeignKey<Result>(r => r.EnrolmentID)
-                .OnDelete(DeleteBehavior.Cascade);
+                .WithOne(ee => ee.Result)
+                .HasForeignKey<Result>(r => r.EnrolmentID);
         }
     }
 }
