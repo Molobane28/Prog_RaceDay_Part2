@@ -17,7 +17,7 @@ namespace RaceDay.API.Controllers
             _context = context;
         }
 
-        // GET: api/users/5 (View own profile)
+        // GET: api/users/5
         [HttpGet("{id}")]
         // [Authorize]
         public async Task<ActionResult<User>> GetUserProfile(int id)
@@ -27,32 +27,23 @@ namespace RaceDay.API.Controllers
                 .Include(u => u.Participant)
                 .FirstOrDefaultAsync(u => u.UserID == id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
-
+            if (user == null) return NotFound();
             return Ok(user);
         }
 
-        // PUT: api/users/5 (Update own profile)
+        // PUT: api/users/5
         [HttpPut("{id}")]
         // [Authorize]
         public async Task<IActionResult> UpdateUserProfile(int id, [FromBody] User updatedUser)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return NotFound();
 
-            // Only update the editable fields
             user.FirstName = updatedUser.FirstName;
             user.LastName = updatedUser.LastName;
             user.Email = updatedUser.Email;
 
             await _context.SaveChangesAsync();
-
             return Ok(new { message = "Profile updated successfully!" });
         }
     }
