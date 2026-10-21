@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
+using System.Text.Json.Serialization;
 
 namespace RaceDay.API
 {
@@ -9,19 +10,23 @@ namespace RaceDay.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllers();
+            // 1. Add services to the container with JSON Cycle Fix
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
 
-            // Add Swagger
+            // 2. Add Swagger generation services
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Register the DbContext
+            // 3. Register the DbContext
             builder.Services.AddDbContext<RaceDayDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("RaceDayConnection")));
 
-            // Add Session and Cookie Authentication services
+            // 4. Add Session and Cookie Authentication services
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
@@ -42,7 +47,7 @@ namespace RaceDay.API
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // 5. Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -51,6 +56,7 @@ namespace RaceDay.API
 
             app.UseHttpsRedirection();
 
+            // 6. Order of middleware matters here
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
