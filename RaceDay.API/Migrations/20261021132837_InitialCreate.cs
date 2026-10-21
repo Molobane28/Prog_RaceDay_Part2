@@ -12,7 +12,7 @@ namespace RaceDay.API.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "USERS",
                 columns: table => new
                 {
                     UserID = table.Column<int>(type: "int", nullable: false)
@@ -26,12 +26,11 @@ namespace RaceDay.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserID);
-                    table.CheckConstraint("CK_USERS_Role", "[Role] IN ('Organiser', 'Participant')");
+                    table.PrimaryKey("PK_USERS", x => x.UserID);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Organisers",
+                name: "ORGANISERS",
                 columns: table => new
                 {
                     OrganiserID = table.Column<int>(type: "int", nullable: false)
@@ -43,93 +42,92 @@ namespace RaceDay.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Organisers", x => x.OrganiserID);
+                    table.PrimaryKey("PK_ORGANISERS", x => x.OrganiserID);
                     table.ForeignKey(
-                        name: "FK_Organisers_Users_UserID",
+                        name: "FK_ORGANISERS_USERS_UserID",
                         column: x => x.UserID,
-                        principalTable: "Users",
+                        principalTable: "USERS",
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Participants",
+                name: "PARTICIPANTS",
                 columns: table => new
                 {
                     ParticipantID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    EmergencyContact = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    MedicalConditions = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmergencyContact = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MedicalConditions = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Participants", x => x.ParticipantID);
+                    table.PrimaryKey("PK_PARTICIPANTS", x => x.ParticipantID);
                     table.ForeignKey(
-                        name: "FK_Participants_Users_UserID",
+                        name: "FK_PARTICIPANTS_USERS_UserID",
                         column: x => x.UserID,
-                        principalTable: "Users",
+                        principalTable: "USERS",
                         principalColumn: "UserID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Events",
+                name: "EVENTS",
                 columns: table => new
                 {
                     EventID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrganiserID = table.Column<int>(type: "int", nullable: false),
-                    EventName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    EventDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    EventDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    RegistrationDeadline = table.Column<DateOnly>(type: "date", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    EventName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EventDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RegistrationDeadline = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Distance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    EventType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     MaxParticipants = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.EventID);
-                    table.CheckConstraint("CK_EVENTS_MaxParticipants", "[MaxParticipants] > 0");
+                    table.PrimaryKey("PK_EVENTS", x => x.EventID);
                     table.ForeignKey(
-                        name: "FK_Events_Organisers_OrganiserID",
+                        name: "FK_EVENTS_ORGANISERS_OrganiserID",
                         column: x => x.OrganiserID,
-                        principalTable: "Organisers",
+                        principalTable: "ORGANISERS",
                         principalColumn: "OrganiserID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "CATEGORIES",
                 columns: table => new
                 {
                     CategoryID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EventID = table.Column<int>(type: "int", nullable: false),
-                    CategoryName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Distance = table.Column<decimal>(type: "decimal(6,2)", nullable: false),
-                    EntryFee = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
-                    AgeGroup = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    GenderRestriction = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Distance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    EntryFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AgeGroup = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GenderRestriction = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.CategoryID);
-                    table.CheckConstraint("CK_CATEGORIES_Distance", "[Distance] > 0");
-                    table.CheckConstraint("CK_CATEGORIES_EntryFee", "[EntryFee] >= 0");
+                    table.PrimaryKey("PK_CATEGORIES", x => x.CategoryID);
                     table.ForeignKey(
-                        name: "FK_Categories_Events_EventID",
+                        name: "FK_CATEGORIES_EVENTS_EventID",
                         column: x => x.EventID,
-                        principalTable: "Events",
+                        principalTable: "EVENTS",
                         principalColumn: "EventID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventEnrolments",
+                name: "EVENT_ENROLMENTS",
                 columns: table => new
                 {
                     EnrolmentID = table.Column<int>(type: "int", nullable: false)
@@ -144,30 +142,29 @@ namespace RaceDay.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventEnrolments", x => x.EnrolmentID);
-                    table.CheckConstraint("CK_ENROLMENTS_PaymentAmount", "[PaymentAmount] >= 0");
+                    table.PrimaryKey("PK_EVENT_ENROLMENTS", x => x.EnrolmentID);
                     table.ForeignKey(
-                        name: "FK_EventEnrolments_Categories_CategoryID",
+                        name: "FK_EVENT_ENROLMENTS_CATEGORIES_CategoryID",
                         column: x => x.CategoryID,
-                        principalTable: "Categories",
+                        principalTable: "CATEGORIES",
                         principalColumn: "CategoryID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EventEnrolments_Events_EventID",
+                        name: "FK_EVENT_ENROLMENTS_EVENTS_EventID",
                         column: x => x.EventID,
-                        principalTable: "Events",
+                        principalTable: "EVENTS",
                         principalColumn: "EventID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EventEnrolments_Participants_ParticipantID",
+                        name: "FK_EVENT_ENROLMENTS_PARTICIPANTS_ParticipantID",
                         column: x => x.ParticipantID,
-                        principalTable: "Participants",
+                        principalTable: "PARTICIPANTS",
                         principalColumn: "ParticipantID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Results",
+                name: "RESULTS",
                 columns: table => new
                 {
                     ResultID = table.Column<int>(type: "int", nullable: false)
@@ -179,63 +176,56 @@ namespace RaceDay.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Results", x => x.ResultID);
-                    table.CheckConstraint("CK_RESULTS_Position", "[Position] IS NULL OR [Position] > 0");
+                    table.PrimaryKey("PK_RESULTS", x => x.ResultID);
                     table.ForeignKey(
-                        name: "FK_Results_EventEnrolments_EnrolmentID",
+                        name: "FK_RESULTS_EVENT_ENROLMENTS_EnrolmentID",
                         column: x => x.EnrolmentID,
-                        principalTable: "EventEnrolments",
+                        principalTable: "EVENT_ENROLMENTS",
                         principalColumn: "EnrolmentID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_EventID",
-                table: "Categories",
+                name: "IX_CATEGORIES_EventID",
+                table: "CATEGORIES",
                 column: "EventID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventEnrolments_CategoryID",
-                table: "EventEnrolments",
+                name: "IX_EVENT_ENROLMENTS_CategoryID",
+                table: "EVENT_ENROLMENTS",
                 column: "CategoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventEnrolments_EventID",
-                table: "EventEnrolments",
+                name: "IX_EVENT_ENROLMENTS_EventID",
+                table: "EVENT_ENROLMENTS",
                 column: "EventID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventEnrolments_ParticipantID",
-                table: "EventEnrolments",
+                name: "IX_EVENT_ENROLMENTS_ParticipantID",
+                table: "EVENT_ENROLMENTS",
                 column: "ParticipantID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_OrganiserID",
-                table: "Events",
+                name: "IX_EVENTS_OrganiserID",
+                table: "EVENTS",
                 column: "OrganiserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Organisers_UserID",
-                table: "Organisers",
+                name: "IX_ORGANISERS_UserID",
+                table: "ORGANISERS",
                 column: "UserID",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Participants_UserID",
-                table: "Participants",
+                name: "IX_PARTICIPANTS_UserID",
+                table: "PARTICIPANTS",
                 column: "UserID",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Results_EnrolmentID",
-                table: "Results",
+                name: "IX_RESULTS_EnrolmentID",
+                table: "RESULTS",
                 column: "EnrolmentID",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
-                column: "Email",
                 unique: true);
         }
 
@@ -243,25 +233,25 @@ namespace RaceDay.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Results");
+                name: "RESULTS");
 
             migrationBuilder.DropTable(
-                name: "EventEnrolments");
+                name: "EVENT_ENROLMENTS");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "CATEGORIES");
 
             migrationBuilder.DropTable(
-                name: "Participants");
+                name: "PARTICIPANTS");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "EVENTS");
 
             migrationBuilder.DropTable(
-                name: "Organisers");
+                name: "ORGANISERS");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "USERS");
         }
     }
 }

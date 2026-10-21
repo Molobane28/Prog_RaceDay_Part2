@@ -11,13 +11,15 @@ namespace RaceDay.API.Models
         [ForeignKey("Organiser")]
         public int OrganiserID { get; set; }
 
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
+        public string EventName { get; set; } = string.Empty;
+        public string? EventDescription { get; set; }
         public DateTime EventDate { get; set; }
+        public DateTime RegistrationDeadline { get; set; }
         public string Location { get; set; } = string.Empty;
-        public double Distance { get; set; }
+        public decimal Distance { get; set; }
         public string EventType { get; set; } = string.Empty;
-        public string? BannerUrl { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public int MaxParticipants { get; set; }
 
         // Navigation Properties
         public Organiser? Organiser { get; set; }

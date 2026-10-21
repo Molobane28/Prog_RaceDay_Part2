@@ -12,7 +12,7 @@ using RaceDay.API.Data;
 namespace RaceDay.API.Migrations
 {
     [DbContext(typeof(RaceDayDbContext))]
-    [Migration("20261015065752_InitialCreate")]
+    [Migration("20261021132837_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace RaceDay.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -35,37 +35,30 @@ namespace RaceDay.API.Migrations
 
                     b.Property<string>("AgeGroup")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Distance")
-                        .HasColumnType("decimal(6,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("EntryFee")
-                        .HasColumnType("decimal(10,2)");
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("EventID")
                         .HasColumnType("int");
 
                     b.Property<string>("GenderRestriction")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CategoryID");
 
                     b.HasIndex("EventID");
 
-                    b.ToTable("Categories", t =>
-                        {
-                            t.HasCheckConstraint("CK_CATEGORIES_Distance", "[Distance] > 0");
-
-                            t.HasCheckConstraint("CK_CATEGORIES_EntryFee", "[EntryFee] >= 0");
-                        });
+                    b.ToTable("CATEGORIES", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Event", b =>
@@ -76,22 +69,26 @@ namespace RaceDay.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventID"));
 
-                    b.Property<DateOnly>("EventDate")
-                        .HasColumnType("date");
+                    b.Property<decimal>("Distance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("EventDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EventName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MaxParticipants")
                         .HasColumnType("int");
@@ -99,22 +96,18 @@ namespace RaceDay.API.Migrations
                     b.Property<int>("OrganiserID")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("RegistrationDeadline")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("RegistrationDeadline")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("EventID");
 
                     b.HasIndex("OrganiserID");
 
-                    b.ToTable("Events", t =>
-                        {
-                            t.HasCheckConstraint("CK_EVENTS_MaxParticipants", "[MaxParticipants] > 0");
-                        });
+                    b.ToTable("EVENTS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.EventEnrolment", b =>
@@ -158,10 +151,7 @@ namespace RaceDay.API.Migrations
 
                     b.HasIndex("ParticipantID");
 
-                    b.ToTable("EventEnrolments", t =>
-                        {
-                            t.HasCheckConstraint("CK_ENROLMENTS_PaymentAmount", "[PaymentAmount] >= 0");
-                        });
+                    b.ToTable("EVENT_ENROLMENTS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Organiser", b =>
@@ -195,7 +185,7 @@ namespace RaceDay.API.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Organisers");
+                    b.ToTable("ORGANISERS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Participant", b =>
@@ -211,17 +201,15 @@ namespace RaceDay.API.Migrations
 
                     b.Property<string>("EmergencyContact")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gender")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MedicalConditions")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -231,7 +219,7 @@ namespace RaceDay.API.Migrations
                     b.HasIndex("UserID")
                         .IsUnique();
 
-                    b.ToTable("Participants");
+                    b.ToTable("PARTICIPANTS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Result", b =>
@@ -259,10 +247,7 @@ namespace RaceDay.API.Migrations
                     b.HasIndex("EnrolmentID")
                         .IsUnique();
 
-                    b.ToTable("Results", t =>
-                        {
-                            t.HasCheckConstraint("CK_RESULTS_Position", "[Position] IS NULL OR [Position] > 0");
-                        });
+                    b.ToTable("RESULTS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.User", b =>
@@ -303,13 +288,7 @@ namespace RaceDay.API.Migrations
 
                     b.HasKey("UserID");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Users", t =>
-                        {
-                            t.HasCheckConstraint("CK_USERS_Role", "[Role] IN ('Organiser', 'Participant')");
-                        });
+                    b.ToTable("USERS", (string)null);
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Category", b =>
@@ -328,7 +307,7 @@ namespace RaceDay.API.Migrations
                     b.HasOne("RaceDay.API.Models.Organiser", "Organiser")
                         .WithMany("Events")
                         .HasForeignKey("OrganiserID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Organiser");
@@ -337,21 +316,21 @@ namespace RaceDay.API.Migrations
             modelBuilder.Entity("RaceDay.API.Models.EventEnrolment", b =>
                 {
                     b.HasOne("RaceDay.API.Models.Category", "Category")
-                        .WithMany("EventEnrolments")
+                        .WithMany("Enrolments")
                         .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Event", "Event")
-                        .WithMany("EventEnrolments")
+                        .WithMany("Enrolments")
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Participant", "Participant")
-                        .WithMany("EventEnrolments")
+                        .WithMany("Enrolments")
                         .HasForeignKey("ParticipantID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -396,14 +375,14 @@ namespace RaceDay.API.Migrations
 
             modelBuilder.Entity("RaceDay.API.Models.Category", b =>
                 {
-                    b.Navigation("EventEnrolments");
+                    b.Navigation("Enrolments");
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Event", b =>
                 {
                     b.Navigation("Categories");
 
-                    b.Navigation("EventEnrolments");
+                    b.Navigation("Enrolments");
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.EventEnrolment", b =>
@@ -418,7 +397,7 @@ namespace RaceDay.API.Migrations
 
             modelBuilder.Entity("RaceDay.API.Models.Participant", b =>
                 {
-                    b.Navigation("EventEnrolments");
+                    b.Navigation("Enrolments");
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.User", b =>
