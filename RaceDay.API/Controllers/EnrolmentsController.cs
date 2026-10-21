@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RaceDay.API.Data;
 using RaceDay.API.Models;
+using RaceDay.API.DTOs;
 
 namespace RaceDay.API.Controllers
 {
@@ -20,12 +21,19 @@ namespace RaceDay.API.Controllers
         // POST: api/enrolments (Participant enters an event)
         [HttpPost]
         // [Authorize(Roles = "Participant")]
-        public async Task<ActionResult<EventEnrolment>> CreateEnrolment([FromBody] EventEnrolment enrolment)
+        public async Task<ActionResult<EventEnrolment>> CreateEnrolment([FromBody] CreateEnrolmentDto request)
         {
-            // Set default values automatically
-            enrolment.EnrolmentDate = DateTime.UtcNow;
-            enrolment.PaymentStatus = "Pending";
-            enrolment.Status = "Confirmed";
+            // Map the DTO to the actual database model
+            var enrolment = new EventEnrolment
+            {
+                ParticipantID = request.ParticipantID,
+                CategoryID = request.CategoryID,
+                EventID = request.EventID,
+                PaymentStatus = request.PaymentStatus,
+                PaymentAmount = request.PaymentAmount,
+                Status = request.Status,
+                EnrolmentDate = DateTime.UtcNow
+            };
 
             _context.EventEnrolments.Add(enrolment);
             await _context.SaveChangesAsync();
