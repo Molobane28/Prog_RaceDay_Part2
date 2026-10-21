@@ -161,5 +161,5 @@ Replace the example image path with the actual path to your screenshot.
 
 The video presentation demonstrates the RaceDay API, including the application, Swagger endpoint testing, code explanation, and unit tests.
 
-**YouTube Video:** Replace this text with your actual YouTube video link.
+**YouTube Video:** https://youtu.be/ElIFU6-9hos .
 
