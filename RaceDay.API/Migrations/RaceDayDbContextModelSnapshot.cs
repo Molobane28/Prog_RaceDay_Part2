@@ -315,19 +315,19 @@ namespace RaceDay.API.Migrations
                     b.HasOne("RaceDay.API.Models.Category", "Category")
                         .WithMany("Enrolments")
                         .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Event", "Event")
                         .WithMany("Enrolments")
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Participant", "Participant")
                         .WithMany("Enrolments")
                         .HasForeignKey("ParticipantID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");

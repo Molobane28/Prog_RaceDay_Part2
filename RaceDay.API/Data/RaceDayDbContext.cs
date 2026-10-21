@@ -31,26 +31,30 @@ namespace RaceDay.API.Data
             modelBuilder.Entity<EventEnrolment>().ToTable("EVENT_ENROLMENTS");
             modelBuilder.Entity<Result>().ToTable("RESULTS");
 
-            // Relationship Configurations (Fix for line 119)
+            // Relationship Configurations
             modelBuilder.Entity<Event>()
                 .HasMany(e => e.Enrolments)
                 .WithOne(ee => ee.Event)
-                .HasForeignKey(ee => ee.EventID);
+                .HasForeignKey(ee => ee.EventID)
+                .OnDelete(DeleteBehavior.Restrict); // <-- Fix for the SQL Error
 
             modelBuilder.Entity<EventEnrolment>()
                 .HasOne(ee => ee.Participant)
                 .WithMany(p => p.Enrolments)
-                .HasForeignKey(ee => ee.ParticipantID);
+                .HasForeignKey(ee => ee.ParticipantID)
+                .OnDelete(DeleteBehavior.Restrict); // <-- Fix for the SQL Error
 
             modelBuilder.Entity<EventEnrolment>()
                 .HasOne(ee => ee.Category)
                 .WithMany(c => c.Enrolments)
-                .HasForeignKey(ee => ee.CategoryID);
+                .HasForeignKey(ee => ee.CategoryID)
+                .OnDelete(DeleteBehavior.Restrict); // <-- Fix for the SQL Error
 
             modelBuilder.Entity<Result>()
                 .HasOne(r => r.EventEnrolment)
                 .WithOne(ee => ee.Result)
-                .HasForeignKey<Result>(r => r.EnrolmentID);
+                .HasForeignKey<Result>(r => r.EnrolmentID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

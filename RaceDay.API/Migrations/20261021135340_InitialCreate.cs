@@ -148,19 +148,19 @@ namespace RaceDay.API.Migrations
                         column: x => x.CategoryID,
                         principalTable: "CATEGORIES",
                         principalColumn: "CategoryID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_EVENT_ENROLMENTS_EVENTS_EventID",
                         column: x => x.EventID,
                         principalTable: "EVENTS",
                         principalColumn: "EventID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_EVENT_ENROLMENTS_PARTICIPANTS_ParticipantID",
                         column: x => x.ParticipantID,
                         principalTable: "PARTICIPANTS",
                         principalColumn: "ParticipantID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
